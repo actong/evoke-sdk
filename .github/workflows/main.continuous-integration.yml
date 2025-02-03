@@ -1,15 +1,17 @@
 name: Continuous Integration
 
 on:
+    push:
+        branches:
+            - main
     workflow_dispatch:
 
 concurrency:
-    group: branch-release-live
+    group: branch-main
 
 jobs:
     publish:
         runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/release/live'
         steps:
             - name: Generate Token
               id: generate_token
@@ -37,12 +39,12 @@ jobs:
                   git config user.name "GitHub Actions Bot"
                   git config user.email "<>"
                   mv npmrc-ci .npmrc
-                  npx turbo run release --concurrency 1 --filter=...[baseline] -- --skip.tag --skip.changelog
-                  npx turbo run deploy --filter=...[baseline] --
+                  npx turbo run release --concurrency 1 --filter=...[baseline] -- --prerelease dev --skip.tag --skip.changelog
+                  npx turbo run deploy --filter=...[baseline] -- --tag dev
               env:
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Push Changes
               run: |
                   git fetch origin
-                  git merge -m "Merge branch 'release/live' [skip ci]" origin/release/live
-                  git push origin HEAD:release/live
+                  git merge -m "Merge branch 'main' [skip ci]" origin/main
+                  git push origin HEAD:main

@@ -1,6 +1,9 @@
 name: Continuous Integration
 
 on:
+    push:
+        branches:
+            - release/live
     workflow_dispatch:
 
 concurrency:
@@ -9,7 +12,6 @@ concurrency:
 jobs:
     publish:
         runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/release/live'
         steps:
             - name: Generate Token
               id: generate_token
@@ -37,8 +39,8 @@ jobs:
                   git config user.name "GitHub Actions Bot"
                   git config user.email "<>"
                   mv npmrc-ci .npmrc
-                  npx turbo run release --concurrency 1 --filter=...[baseline] -- --skip.tag --skip.changelog
-                  npx turbo run deploy --filter=...[baseline] --
+                  npx turbo run release --concurrency 1 --filter=...[baseline] -- --prerelease testing --skip.tag --skip.changelog
+                  npx turbo run deploy --filter=...[baseline] -- --tag testing
               env:
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Push Changes
