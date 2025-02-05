@@ -3,11 +3,11 @@ name: Continuous Integration
 on:
     push:
         branches:
-            - release/live
+            - release
     workflow_dispatch:
 
 concurrency:
-    group: branch-release-live
+    group: branch-release
 
 jobs:
     publish:
@@ -27,24 +27,20 @@ jobs:
               with:
                   node-version: 18
             - name: Setup
-              run: |
-                  yarn install
-                  git tag baseline HEAD^
-                  echo Using baseline:
-                  git log -1 --oneline baseline
+              run: yarn install
             - name: Build
-              run: yarn build --filter=...[baseline]
+              run: yarn build
             - name: Publish
               run: |
                   git config user.name "GitHub Actions Bot"
                   git config user.email "<>"
                   mv npmrc-ci .npmrc
-                  npx turbo run release --concurrency 1 --filter=...[baseline] -- --prerelease testing --skip.tag --skip.changelog
-                  npx turbo run deploy --filter=...[baseline] -- --tag testing
+                  npx turbo run release --concurrency 1 -- --prerelease testing --skip.tag --skip.changelog
+                  npx turbo run deploy -- --tag testing
               env:
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Push Changes
               run: |
                   git fetch origin
-                  git merge -m "Merge branch 'release/live' [skip ci]" origin/release/live
-                  git push origin HEAD:release/live
+                  git merge -m "Merge branch 'release' [skip ci]" origin/release
+                  git push origin HEAD:release
