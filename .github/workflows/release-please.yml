@@ -1,0 +1,24 @@
+on:
+    workflow_dispatch:
+
+permissions:
+    contents: write
+    pull-requests: write
+
+name: release-please
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: googleapis/release-please-action@v4
+              with:
+                  #   target-branch: test-release-please
+                  # this assumes that you have created a personal access token
+                  # (PAT) and configured it as a GitHub action secret named
+                  # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
+                  #   token: ${{ steps.generate_token.outputs.token }}
+                  # optional. customize path to release-please-config.json
+                  config-file: release-please-config.json
+                  # optional. customize path to .release-please-manifest.json
+                  manifest-file: .release-please-manifest.json
